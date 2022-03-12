@@ -98,11 +98,19 @@ class RecommendationView(View):
             temp_dict["abstract"].append(p.abstract)
         user_df = pd.DataFrame(temp_dict)
 
-        ref_df = self.sort_papers(ref_df, user_df)
+        if len(user_df) >= 1:
+            ref_df = self.sort_papers(ref_df, user_df)
+            message = None
+        else:
+            message = """
+                お気に入り論文が登録されていません。
+                登録するとおすすめ順にソートして表示されます。
+            """
 
         return render(request, "recommend_list.html", {
             "conference": conference,
-            "papers": ref_df
+            "papers": ref_df,
+            "message": message
         })
 
     def sort_papers(self, ref_df: pd.DataFrame, user_df: pd.DataFrame) -> pd.DataFrame:
