@@ -29,7 +29,7 @@
                         <div class="accordion-body">
                             <ul>
                                 {% for conf in conferences %}
-                                <li><a href="{% url 'recommend:get_recommend' conf.pk %}">{{conf}}</a></li>
+                                <li><a href="{% url 'recommend:get_recommendation' conf.pk 100 %}">{{conf}}</a></li>
                                 {% endfor %}
                             </ul>
                         </div>

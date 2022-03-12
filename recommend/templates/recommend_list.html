@@ -9,36 +9,58 @@
 
 <body>
     <div class="container">
+        <h1 class="display-3">Paper Recommender</h1>
+        <h2 class="lead">{{conference}}</h2>
         <div class="row">
-            <h1 class="display-3">Paper Recommender</h1>
-            <h2 class="lead">{{conference}}</h2>
-            <p>
-                <a href="{% url 'recommend:index' %}">戻る</a>
-                <a href="{% url 'user:logout' %}">ログアウト</a>
-            </p>
 
-            <div class="accordion">
-                {% for paper in papers %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapse-{{paper.pk}}" aria-expanded="false"
-                            aria-controls="collapse-{{paper.pk}}">
-                            {{paper.title}}
-                        </button>
-                    </h2>
-                    <div id="collapse-{{paper.pk}}" class="accordion-collapse collapse"
-                        aria-labelledby="heading-{{paper.pk}}">
-                        <div class="accordion-body">
-                            <h3 class="lead">Abstract</h3>
-                            <p>{{paper.abstract}}</p>
-                            <p class="small"><a href="{{paper.url}}">[link]</a></p>
-                        </div>
-                    </div>
+            <div class="col">
+                <div>
+                    <a href="{% url 'recommend:index' %}">戻る</a>
+                    <a href="{% url 'user:logout' %}">ログアウト</a>
                 </div>
-                {% endfor %}
+            </div>
+            <div class="col text-end">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        表示件数
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item"
+                                href="{% url 'recommend:get_recommendation' conference.pk 100 %}">100</a></li>
+                        <li><a class="dropdown-item"
+                                href="{% url 'recommend:get_recommendation' conference.pk 200 %}">200</a></li>
+                        <li><a class="dropdown-item"
+                                href="{% url 'recommend:get_recommendation' conference.pk 500 %}">500</a></li>
+                        <li><a class="dropdown-item"
+                                href="{% url 'recommend:get_recommendation' conference.pk %}">All</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
+
+        <div class="accordion mt-3">
+            {% for paper in papers %}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapse-{{paper.pk}}" aria-expanded="false"
+                        aria-controls="collapse-{{paper.pk}}">
+                        {{paper.title}}
+                    </button>
+                </h2>
+                <div id="collapse-{{paper.pk}}" class="accordion-collapse collapse"
+                    aria-labelledby="heading-{{paper.pk}}">
+                    <div class="accordion-body">
+                        <h3 class="lead">Abstract</h3>
+                        <p>{{paper.abstract}}</p>
+                        <p class="small"><a href="{{paper.url}}">[link]</a></p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
 
     </div>
 

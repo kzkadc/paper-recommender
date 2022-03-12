@@ -66,6 +66,8 @@ class RecommendationView(View):
             return redirect("recommend:index")
 
         papers = ReferencePaper.objects.filter(published_at=conference)
+        if "display_num" in kwargs:
+            papers = papers[:kwargs["display_num"]]
 
         return render(request, "recommend_list.html", {
             "conference": conference,
