@@ -1,0 +1,6 @@
+*.sqlite3
+*.code-workspace
+__pycache__/
+.mypy_cahce/
+*.csv
+migrations/
