@@ -46,7 +46,7 @@
             {% for idx, paper in papers.iterrows %}
             <div class="accordion-item">
                 <h2 class="accordion-header">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapse-{{paper.pk}}" aria-expanded="false"
                         aria-controls="collapse-{{paper.pk}}">
                         {{paper.title}} {% if paper.distance %}({{paper.distance}}){% endif %}
