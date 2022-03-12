@@ -4,7 +4,7 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.contrib import auth
 
-from .forms import LoginForm, SignupForm
+from .forms import LoginForm, SignupForm, SettingForm
 
 
 class Login(View):
@@ -51,3 +51,29 @@ class Signup(View):
             return redirect("recommend:index")
         else:
             return render(request, "signup.html", {"form": form})
+
+
+class UserSetting(View):
+    def get(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        if not request.user.is_authenticated:
+            return redirect("user:login")
+
+        context = {
+            "form": SettingForm(request.user)
+        }
+
+        if "message" in kwargs:
+            context["message"] = kwargs["message"]
+
+        return render(request, "setting.html", context)
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        if not request.user.is_authenticated:
+            return redirect("user:login")
+
+        form = SettingForm(request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return self.get(request, message="パスワードを変更しました。")
+        else:
+            return render(request, "setting.html", {"form": form})
