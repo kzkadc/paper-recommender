@@ -3,7 +3,7 @@ from django.views import View
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 
-from .models import UserPaper
+from .models import UserPaper, Conference, ReferencePaper
 from .forms import AddPaperForm
 
 
@@ -18,10 +18,14 @@ class MainMenuView(View):
             form = kwargs["form"]
         else:
             form = AddPaperForm()
+
+        conferences = Conference.objects.all()
+
         return render(request, "main_menu.html", {
             "user": request.user,
             "form": form,
-            "papers": papers
+            "papers": papers,
+            "conferences": conferences
         })
 
     def post(self, request: HttpRequest) -> HttpResponse:
@@ -52,3 +56,18 @@ class RemovePaperView(View):
             paper.delete()
 
         return redirect("recommend:index")
+
+
+class RecommendationView(View):
+    def get(self, request: HttpRequest, **kwargs) -> HttpRequest:
+        try:
+            conference = Conference.objects.get(pk=kwargs["pk"])
+        except Conference.DoesNotExist:
+            return redirect("recommend:index")
+
+        papers = ReferencePaper.objects.filter(published_at=conference)
+
+        return render(request, "recommend_list.html", {
+            "conference": conference,
+            "papers": papers
+        })

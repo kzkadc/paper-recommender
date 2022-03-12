@@ -12,39 +12,65 @@
         <div class="row">
             <h1 class="display-3">Paper Recommender</h1>
             <p>Username: {{user.username}}</p>
-            <p><a href="{% url 'user:logout' %}">Logout</a></p>
-        </div>
 
-        <div class="row border">
-            <form method="post" action="">
-                {% csrf_token %}
-                {{form.as_p}}
-                <input type="submit" class="form-control" value="追加">
-            </form>
-        </div>
-        <div class="row mt-5">
+            <p><a href="{% url 'user:logout' %}">ログアウト</a></p>
+
             <div class="accordion">
-                {% for paper in papers %}
                 <div class="accordion-item">
                     <h2 class="accordion-header">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapse-{{paper.pk}}" aria-expanded="false"
-                            aria-controls="collapse-{{paper.pk}}">
-                            {{paper.title}}
+                            data-bs-target="#collapse-recommendation" aria-expanded="false"
+                            aria-controls="collapse-recommendation">
+                            国際会議一覧
                         </button>
                     </h2>
-                    <div id="collapse-{{paper.pk}}" class="accordion-collapse collapse"
-                        aria-labelledby="heading-{{paper.pk}}">
+                    <div id="collapse-recommendation" class="accordion-collapse collapse"
+                        aria-labelledby="heading-recommendation">
                         <div class="accordion-body">
-                            <h3 class="lead">Abstract</h3>
-                            <p>{{paper.abstract}}</p>
-                            <h3 class="lead">Memo</h3>
-                            <p class="small">{{paper.memo}}</p>
-                            <p class="small"><a href="{% url 'recommend:remove' paper.pk %}">削除</a></p>
+                            <ul>
+                                {% for conf in conferences %}
+                                <li><a href="{% url 'recommend:get_recommend' conf.pk %}">{{conf}}</a></li>
+                                {% endfor %}
+                            </ul>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
+            </div>
+        </div>
+        <div class="container mt-5">
+            <h2 class="lead">お気に入り論文</h2>
+            <div class="row border">
+                <h2 class="lead">論文の追加</h2>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    <input type="submit" class="form-control" value="追加">
+                </form>
+            </div>
+            <div class="row mt-3">
+                <div class="accordion">
+                    {% for paper in papers %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapse-{{paper.pk}}" aria-expanded="false"
+                                aria-controls="collapse-{{paper.pk}}">
+                                {{paper.title}}
+                            </button>
+                        </h2>
+                        <div id="collapse-{{paper.pk}}" class="accordion-collapse collapse"
+                            aria-labelledby="heading-{{paper.pk}}">
+                            <div class="accordion-body">
+                                <h3 class="lead">Abstract</h3>
+                                <p>{{paper.abstract}}</p>
+                                <h3 class="lead">Memo</h3>
+                                <p class="small">{{paper.memo}}</p>
+                                <p class="small"><a href="{% url 'recommend:remove' paper.pk %}">削除</a></p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
