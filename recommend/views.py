@@ -152,20 +152,21 @@ class RecommendationView(View):
         user_df["temp_text"] = user_df["title"] + " " + user_df["abstract"]
         user_vec: np.ndarray = np.stack(
             user_df["temp_text"].map(cls.embed_text))
+        user_df.drop(columns=["temp_text"], inplace=True)
 
         ref_df["temp_text"] = ref_df["title"] + " " + ref_df["abstract"]
         ref_vec: np.ndarray = np.stack(ref_df["temp_text"].map(cls.embed_text))
+        ref_df.drop(columns=["temp_text"], inplace=True)
 
         ii, jj = np.meshgrid(
             np.arange(user_vec.shape[0]), np.arange(ref_vec.shape[0]))
         dist: np.ndarray = np.square(
             user_vec[ii] - ref_vec[jj]).sum(axis=2)  # (num_ref, num_user)
-        print(dist.shape)
         dist = dist.min(axis=1)
 
+        ref_df["distance"] = dist
         idx = np.argsort(dist)
         ref_df = ref_df.iloc[idx]
-        ref_df["distance"] = dist[idx]
 
         return ref_df
 
