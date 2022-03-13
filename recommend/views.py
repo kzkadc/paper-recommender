@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
+from django.utils import timezone
 
 import pandas as pd
 import numpy as np
@@ -19,7 +20,8 @@ class MainMenuView(View):
         if not request.user.is_authenticated:
             return redirect("user:login")
 
-        papers = UserPaper.objects.filter(owner=request.user)
+        papers = UserPaper.objects.filter(
+            owner=request.user).order_by("added_at").reverse()
 
         if "form" in kwargs:
             form = kwargs["form"]
@@ -43,6 +45,7 @@ class MainMenuView(View):
         if form.is_valid():
             userpaper: UserPaper = form.save(commit=False)
             userpaper.owner = request.user
+            userpaper.added_at = timezone.now()
             userpaper.save()
             return self.get(request)
         else:
