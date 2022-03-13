@@ -11,12 +11,12 @@
     <div class="container">
 
         <h1 class="display-3">Paper Recommender</h1>
-        <p class="lead">ログイン</p>
+        <h2 class="lead">ログイン</h2>
         <div class="row">
             {% if message %}
             <p>{{message}}</p>
             {% endif %}
-            <form action="{% url 'user:login' %}" method="post" class="col-4">
+            <form action="{% url 'user:login' %}" method="post" class="col-lg-5">
                 {% csrf_token %}
                 {{form.as_p}}
                 <input type="submit" value="ログイン" class="form-control">

@@ -13,9 +13,9 @@
         {% if message %}
         <div class="alert alert-success" role="alert">{{message}}</div>
         {% endif %}
-        <p class="lead">ユーザー情報変更</p>
+        <h2 class="lead">ユーザー情報変更</h2>
         <div class="row">
-            <form action="{% url 'user:setting' %}" method="post" class="col-4">
+            <form action="{% url 'user:setting' %}" method="post" class="col-lg-5">
                 {% csrf_token %}
                 {{form.as_p}}
                 <input type="submit" value="変更" class="form-control">

@@ -45,22 +45,22 @@
         <div class="accordion mt-3">
             {% for idx, paper in papers.iterrows %}
             <div class="accordion-item">
-                <h2 class="accordion-header">
+                <h3 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapse-{{paper.pk}}" aria-expanded="false"
                         aria-controls="collapse-{{paper.pk}}">
                         {{paper.title}} {% if paper.distance %}({{paper.distance}}){% endif %}
                     </button>
-                </h2>
+                </h3>
                 <div id="collapse-{{paper.pk}}" class="accordion-collapse collapse"
                     aria-labelledby="heading-{{paper.pk}}">
                     <div class="accordion-body">
-                        <h3 class="lead">Title</h3>
+                        <h4 class="lead">Title</h4>
                         <p>{{paper.title}}</p>
-                        <h3 class="lead">Abstract</h3>
+                        <h4 class="lead">Abstract</h4>
                         <p>{{paper.abstract}}</p>
                         <p class="small">
-                            <a href="{{paper.url}}" target=”_blank” rel=”noopener noreferrer”>[link]</a>
+                            <a href="{{paper.url}}" target="_blank" rel="noopener noreferrer">[link]</a>
                         </p>
                     </div>
                 </div>
