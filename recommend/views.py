@@ -1,13 +1,16 @@
-from typing import Any
+import re
+from typing import Any, Iterable
+
 from django.shortcuts import render, redirect
 from django.views import View
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.db.models import QuerySet
 
 import pandas as pd
+import numpy as np
+import fasttext
 
-from .models import Paper, UserPaper, Conference, ReferencePaper
+from .models import UserPaper, Conference, ReferencePaper
 from .forms import AddPaperForm
 
 
@@ -63,6 +66,33 @@ class RemovePaperView(View):
 
 
 class RecommendationView(View):
+    @classmethod
+    def prepare_fasttext_model(cls):
+        print("preparing fasttext model...", end="")
+
+        cls.fasttext_model = fasttext.load_model("assets/wiki.en.bin")
+        with open("assets/stopwords.txt", "r", encoding="utf-8") as f:
+            cls.stopwords = set(f.read().strip().split("\n"))
+
+        print("done")
+
+    @classmethod
+    def embed_text(cls, text: str) -> np.ndarray:
+        text = re.sub(r"[\s\n]+", " ", text.strip())
+
+        splitted_text: Iterable[str] = text.split(" ")
+        splitted_text = filter(lambda x: x not in cls.stopwords, splitted_text)
+
+        count = 0
+        mean_vec = np.array(0, dtype=np.float32)
+        for x in splitted_text:
+            mean_vec = mean_vec + cls.fasttext_model.get_word_vector(x)
+            count += 1
+        mean_vec /= count
+        mean_vec /= np.linalg.norm(mean_vec)
+
+        return mean_vec
+
     def get(self, request: HttpRequest, **kwargs: dict[str, Any]) -> HttpRequest:
         try:
             conference = Conference.objects.get(pk=kwargs["pk"])
@@ -70,8 +100,6 @@ class RecommendationView(View):
             return redirect("recommend:index")
 
         ref_papers = ReferencePaper.objects.filter(published_at=conference)
-        if "display_num" in kwargs:
-            ref_papers = ref_papers[:kwargs["display_num"]]
 
         temp_dict = {
             "title": [],
@@ -107,12 +135,36 @@ class RecommendationView(View):
                 登録するとおすすめ順にソートして表示されます。
             """
 
+        if "display_num" in kwargs:
+            ref_df = ref_df.iloc[:kwargs["display_num"]]
+
         return render(request, "recommend_list.html", {
             "conference": conference,
             "papers": ref_df,
             "message": message
         })
 
-    def sort_papers(self, ref_df: pd.DataFrame, user_df: pd.DataFrame) -> pd.DataFrame:
-        ref_df["distance"] = 100
+    @classmethod
+    def sort_papers(cls, ref_df: pd.DataFrame, user_df: pd.DataFrame) -> pd.DataFrame:
+        user_df["temp_text"] = user_df["title"] + " " + user_df["abstract"]
+        user_vec: np.ndarray = np.stack(
+            user_df["temp_text"].map(cls.embed_text))
+
+        ref_df["temp_text"] = ref_df["title"] + " " + ref_df["abstract"]
+        ref_vec: np.ndarray = np.stack(ref_df["temp_text"].map(cls.embed_text))
+
+        ii, jj = np.meshgrid(
+            np.arange(user_vec.shape[0]), np.arange(ref_vec.shape[0]))
+        dist: np.ndarray = np.square(
+            user_vec[ii] - ref_vec[jj]).sum(axis=2)  # (num_ref, num_user)
+        print(dist.shape)
+        dist = dist.min(axis=1)
+
+        idx = np.argsort(dist)
+        ref_df = ref_df.iloc[idx]
+        ref_df["distance"] = dist[idx]
+
         return ref_df
+
+
+RecommendationView.prepare_fasttext_model()
