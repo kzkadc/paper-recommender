@@ -6,6 +6,7 @@ from django.views import View
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.utils import timezone
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 import pandas as pd
 import numpy as np
@@ -15,11 +16,8 @@ from .models import UserPaper, Conference, ReferencePaper
 from .forms import AddPaperForm
 
 
-class MainMenuView(View):
+class MainMenuView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, *args: tuple, **kwargs: dict[str, Any]) -> HttpResponse:
-        if not request.user.is_authenticated:
-            return redirect("user:login")
-
         papers = UserPaper.objects.filter(
             owner=request.user).order_by("added_at").reverse()
 
@@ -38,9 +36,6 @@ class MainMenuView(View):
         })
 
     def post(self, request: HttpRequest) -> HttpResponse:
-        if not request.user.is_authenticated:
-            return redirect("user:login")
-
         form = AddPaperForm(data=request.POST)
         if form.is_valid():
             userpaper: UserPaper = form.save(commit=False)
@@ -52,11 +47,8 @@ class MainMenuView(View):
             return self.get(request, form=form)
 
 
-class RemovePaperView(View):
+class RemovePaperView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, **kwargs) -> HttpRequest:
-        if not request.user.is_authenticated:
-            return redirect("user:login")
-
         try:
             paper: UserPaper = UserPaper.objects.get(
                 owner=request.user, pk=kwargs["pk"])
@@ -68,7 +60,7 @@ class RemovePaperView(View):
         return redirect("recommend:index")
 
 
-class RecommendationView(View):
+class RecommendationView(LoginRequiredMixin, View):
     @classmethod
     def prepare_fasttext_model(cls):
         print("preparing fasttext model...", end="")

@@ -3,6 +3,7 @@ from django.views import View
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.contrib import auth
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 
 from .forms import LoginForm, SignupForm, SettingForm
@@ -43,6 +44,9 @@ class Signup(View):
             return render(request, "signup.html", {"form": SignupForm()})
 
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        if request.user.is_authenticated:
+            return redirect("recommend:index")
+
         form = SignupForm(data=request.POST)
         if form.is_valid():
             form.save()
@@ -56,11 +60,8 @@ class Signup(View):
             return render(request, "signup.html", {"form": form})
 
 
-class UserSetting(View):
+class UserSetting(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, **kwargs) -> HttpResponse:
-        if not request.user.is_authenticated:
-            return redirect("user:login")
-
         context = {
             "form": SettingForm(request.user)
         }
@@ -71,9 +72,6 @@ class UserSetting(View):
         return render(request, "setting.html", context)
 
     def post(self, request: HttpRequest) -> HttpResponse:
-        if not request.user.is_authenticated:
-            return redirect("user:login")
-
         form = SettingForm(request.user, data=request.POST)
         if form.is_valid():
             form.save()
