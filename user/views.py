@@ -3,8 +3,10 @@ from django.views import View
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.contrib import auth
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 
-from .forms import LoginForm, SignupForm
+from .forms import LoginForm, SignupForm, SettingForm
 
 
 class Login(View):
@@ -16,14 +18,16 @@ class Login(View):
 
     def post(self, request: HttpRequest) -> HttpResponse:
         form = LoginForm(data=request.POST)
-        username = form.data.get("username")
-        password = form.data.get("password")
-        user = auth.authenticate(request, username=username, password=password)
-        if user is not None:
-            auth.login(request, user)
-            return redirect("recommend:index")
-        else:
+        if not form.is_valid():
             return render(request, "login.html", {"form": form})
+
+        try:
+            form.clean()
+        except ValidationError:
+            return render(request, "login.html", {"form": form})
+
+        auth.login(request, form.user_cache)
+        return redirect("recommend:index")
 
 
 class Logout(View):
@@ -40,6 +44,9 @@ class Signup(View):
             return render(request, "signup.html", {"form": SignupForm()})
 
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        if request.user.is_authenticated:
+            return redirect("recommend:index")
+
         form = SignupForm(data=request.POST)
         if form.is_valid():
             form.save()
@@ -51,3 +58,23 @@ class Signup(View):
             return redirect("recommend:index")
         else:
             return render(request, "signup.html", {"form": form})
+
+
+class UserSetting(LoginRequiredMixin, View):
+    def get(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        context = {
+            "form": SettingForm(request.user)
+        }
+
+        if "message" in kwargs:
+            context["message"] = kwargs["message"]
+
+        return render(request, "setting.html", context)
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        form = SettingForm(request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return self.get(request, message="パスワードを変更しました。")
+        else:
+            return render(request, "setting.html", {"form": form})

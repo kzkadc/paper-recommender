@@ -34,3 +34,4 @@ class ReferencePaper(Paper):
 class UserPaper(Paper):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     memo = models.TextField()
+    added_at = models.DateTimeField()

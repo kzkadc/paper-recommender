@@ -5,3 +5,4 @@ __pycache__/
 *.csv
 migrations/
 local_settings.py
+assets/

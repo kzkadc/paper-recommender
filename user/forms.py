@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm
 
 
 class LoginForm(AuthenticationForm):
@@ -14,4 +14,12 @@ class SignupForm(UserCreationForm):
         super().__init__(*args, **kwargs)
 
         for k in ("username", "password1", "password2"):
+            self.fields[k].widget.attrs["class"] = "form-control"
+
+
+class SettingForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for k in ("old_password", "new_password1", "new_password2"):
             self.fields[k].widget.attrs["class"] = "form-control"
