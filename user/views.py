@@ -3,6 +3,7 @@ from django.views import View
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.contrib import auth
+from django.core.exceptions import ValidationError
 
 from .forms import LoginForm, SignupForm, SettingForm
 
@@ -16,14 +17,16 @@ class Login(View):
 
     def post(self, request: HttpRequest) -> HttpResponse:
         form = LoginForm(data=request.POST)
-        username = form.data.get("username")
-        password = form.data.get("password")
-        user = auth.authenticate(request, username=username, password=password)
-        if user is not None:
-            auth.login(request, user)
-            return redirect("recommend:index")
-        else:
+        if not form.is_valid():
             return render(request, "login.html", {"form": form})
+
+        try:
+            form.clean()
+        except ValidationError:
+            return render(request, "login.html", {"form": form})
+
+        auth.login(request, form.user_cache)
+        return redirect("recommend:index")
 
 
 class Logout(View):
