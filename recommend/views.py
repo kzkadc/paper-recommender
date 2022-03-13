@@ -133,6 +133,7 @@ class RecommendationView(View):
             ref_df = self.sort_papers(ref_df, user_df)
             message = None
         else:
+            ref_df = ref_df.iloc[np.random.permutation(len(ref_df))]
             message = """
                 お気に入り論文が登録されていません。
                 登録するとおすすめ順にソートして表示されます。
