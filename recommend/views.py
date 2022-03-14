@@ -73,7 +73,8 @@ class RecommendationView(LoginRequiredMixin, View):
 
     @classmethod
     def embed_text(cls, text: str) -> np.ndarray:
-        text = re.sub(r"[\s\n]+", " ", text.strip().lower())
+        text = re.sub(r"[\s\n\-.,?!:]+", " ", text.strip().lower())
+        text = re.sub("\"", "", text)
 
         splitted_text: Iterable[str] = text.split(" ")
         splitted_text = filter(lambda x: x not in cls.stopwords, splitted_text)
