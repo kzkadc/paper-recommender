@@ -14,7 +14,7 @@ import fasttext
 
 from .models import UserPaper, Conference, ReferencePaper
 from .forms import AddPaperForm
-
+from paper_recommender.local_settings import FASTTEXT_MODEL, STOPWORDS
 
 class MainMenuView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, *args: tuple, **kwargs: dict[str, Any]) -> HttpResponse:
@@ -65,8 +65,8 @@ class RecommendationView(LoginRequiredMixin, View):
     def prepare_fasttext_model(cls):
         print("preparing fasttext model...", end="")
 
-        cls.fasttext_model = fasttext.load_model("assets/wiki.en.bin")
-        with open("assets/stopwords.txt", "r", encoding="utf-8") as f:
+        cls.fasttext_model = fasttext.load_model(FASTTEXT_MODEL)
+        with open(STOPWORDS, "r", encoding="utf-8") as f:
             cls.stopwords = set(f.read().strip().split("\n"))
 
         print("done")
