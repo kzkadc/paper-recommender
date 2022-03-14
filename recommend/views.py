@@ -122,7 +122,11 @@ class RecommendationView(LoginRequiredMixin, View):
             temp_dict["abstract"].append(p.abstract)
         user_df = pd.DataFrame(temp_dict)
 
-        if len(user_df) >= 1:
+        if len(ref_df) == 0:
+            message = """
+                論文がありません。
+            """
+        elif len(user_df) >= 1:
             ref_df = self.sort_papers(ref_df, user_df)
             message = None
         else:
