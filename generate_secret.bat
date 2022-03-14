@@ -1,1 +1,1 @@
-python -c "from django.core.management.utils import get_random_secret_key; print(f'SECRET_KEY = {get_random_secret_key()!r}')" > paper_recommender/local_settings.py
+python3 -c "from django.core.management.utils import get_random_secret_key; print(f'SECRET_KEY = {get_random_secret_key()!r}')" > paper_recommender/local_settings.py
