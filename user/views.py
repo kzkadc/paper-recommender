@@ -4,7 +4,7 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.contrib import auth
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ValidationError
+from django.forms import ValidationError
 
 from .forms import LoginForm, SignupForm, SettingForm
 
@@ -48,16 +48,18 @@ class Signup(View):
             return redirect("recommend:index")
 
         form = SignupForm(data=request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password1")
-            user = auth.authenticate(username=username, password=password)
-            auth.login(request, user)
-
-            return redirect("recommend:index")
-        else:
+        if not form.is_valid():
             return render(request, "signup.html", {"form": form})
+
+        try:
+            form.clean_password2()
+        except ValidationError:
+            return render(request, "signup.html", {"form": form})
+
+        user = form.save()
+        auth.login(request, user)
+
+        return redirect("recommend:index")
 
 
 class UserSetting(LoginRequiredMixin, View):
@@ -73,8 +75,15 @@ class UserSetting(LoginRequiredMixin, View):
 
     def post(self, request: HttpRequest) -> HttpResponse:
         form = SettingForm(request.user, data=request.POST)
-        if form.is_valid():
-            form.save()
-            return self.get(request, message="パスワードを変更しました。")
-        else:
+        if not form.is_valid():
             return render(request, "setting.html", {"form": form})
+
+        try:
+            form.clean_old_password()
+        except ValidationError:
+            return render(request, "setting.html", {"form": form})
+
+        user = form.save()
+        auth.login(request, user)
+
+        return self.get(request, message="パスワードを変更しました。")
