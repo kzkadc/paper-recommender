@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h1 class="display-3">Paper Recommender</h1>
-        <h2 class="lead">{{conference}}</h2>
+        <h2 class="lead"><a href="{{conference.url}}" target="_blank" rel="noopener noreferrer">{{conference}}</a></h2>
         {% if message %}
         <div class="alert alert-warning">{{message}}</div>
         {% endif %}
