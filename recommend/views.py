@@ -19,8 +19,8 @@ from paper_recommender.local_settings import FASTTEXT_MODEL, STOPWORDS
 
 class MainMenuView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, *args: tuple, **kwargs: dict[str, Any]) -> HttpResponse:
-        papers = UserPaper.objects.filter(
-            owner=request.user).order_by("added_at").reverse()
+        papers = UserPaper.objects.filter(owner=request.user) \
+            .order_by("added_at").reverse()
 
         if "form" in kwargs:
             form = kwargs["form"]
