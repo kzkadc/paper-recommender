@@ -9,10 +9,14 @@ class ConferenceAdmin(admin.ModelAdmin):
 
 class ReferencePaperAdmin(admin.ModelAdmin):
     list_display = ["title", "published_at"]
+    list_filter = ["published_at"]
+    search_fields = ["title"]
 
 
 class UserPaperAdmin(admin.ModelAdmin):
     list_display = ["title", "owner"]
+    search_fields = ["title"]
+    list_filter = ["owner"]
 
 
 admin.site.register(Conference, ConferenceAdmin)
