@@ -48,7 +48,7 @@
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapse-{{paper.pk}}" aria-expanded="false"
                         aria-controls="collapse-{{paper.pk}}">
-                        {{paper.title}} {% if paper.distance %}({{paper.distance}}){% endif %}
+                        {{paper.title}} {% if paper.distance > 0 %}({{paper.distance}}){% endif %}
                     </button>
                 </h3>
                 <div id="collapse-{{paper.pk}}" class="accordion-collapse collapse"
@@ -60,6 +60,12 @@
                         <p>{{paper.abstract}}</p>
                         <p class="small">
                             <a href="{{paper.url}}" target="_blank" rel="noopener noreferrer">[link]</a>
+                            {% if paper.distance %}
+                            <a class="add_fav" paper_pk="{{paper.pk}}" id="paper-{{paper.pk}}"
+                                href="javascript:void(0);">
+                                [favorite]
+                            </a>
+                            {% endif %}
                         </p>
                     </div>
                 </div>
@@ -71,6 +77,28 @@
     </div>
 
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'jquery/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'ajax_csrf.js' %}"></script>
+    <script>
+        $(".add_fav").click(e => {
+            e.preventDefault();
+            $.ajax({
+                "url": "{% url 'recommend:add_favorite' %}",
+                "type": "POST",
+                "data": {
+                    "pk": $(e.target).attr("paper_pk"),
+                },
+                "dataType": "json"
+            }).done(response => {
+                if (response.state !== "success") return;
+
+                const elem = $("#paper-" + response.pk);
+                elem.text("[added]");
+                elem.removeClass("add_fav");
+                elem.contents().unwrap();
+            });
+        });
+    </script>
 </body>
 
 </html>
