@@ -66,7 +66,7 @@ class AddFavoritePaperView(LoginRequiredMixin, View):
             title=paper.title,
             abstract=paper.abstract,
             owner=request.user,
-            memo=paper.url,
+            memo=f"{paper.url} ({paper.published_at})",
             added_at=timezone.now()
         ).save()
 
