@@ -48,7 +48,6 @@ class MainMenuView(LoginRequiredMixin, View):
 
 
 class RemovePaperView(LoginRequiredMixin, View):
-    def get(self, request: HttpRequest, **kwargs) -> HttpRequest:
         try:
             paper: UserPaper = UserPaper.objects.get(
                 owner=request.user, pk=kwargs["pk"])
@@ -56,6 +55,7 @@ class RemovePaperView(LoginRequiredMixin, View):
             return redirect("recommend:index")
         else:
             paper.delete()
+    def get(self, request: HttpRequest, **kwargs) -> HttpResponse:
 
         return redirect("recommend:index")
 
