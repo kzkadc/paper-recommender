@@ -1,7 +1,7 @@
 import re
 from typing import Any, Iterable
 
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -15,6 +15,7 @@ import fasttext
 from .models import UserPaper, Conference, ReferencePaper
 from .forms import AddPaperForm
 from paper_recommender.local_settings import FASTTEXT_MODEL, STOPWORDS
+
 
 class MainMenuView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, *args: tuple, **kwargs: dict[str, Any]) -> HttpResponse:
@@ -48,14 +49,10 @@ class MainMenuView(LoginRequiredMixin, View):
 
 
 class RemovePaperView(LoginRequiredMixin, View):
-        try:
-            paper: UserPaper = UserPaper.objects.get(
-                owner=request.user, pk=kwargs["pk"])
-        except UserPaper.DoesNotExist:
-            return redirect("recommend:index")
-        else:
-            paper.delete()
     def get(self, request: HttpRequest, **kwargs) -> HttpResponse:
+        paper = get_object_or_404(
+            UserPaper, owner=request.user, pk=kwargs["pk"])
+        paper.delete()
 
         return redirect("recommend:index")
 
@@ -90,11 +87,7 @@ class RecommendationView(LoginRequiredMixin, View):
         return mean_vec
 
     def get(self, request: HttpRequest, **kwargs: dict[str, Any]) -> HttpRequest:
-        try:
-            conference = Conference.objects.get(pk=kwargs["pk"])
-        except Conference.DoesNotExist:
-            return redirect("recommend:index")
-
+        conference = get_object_or_404(Conference, pk=kwargs["pk"])
         ref_papers = ReferencePaper.objects.filter(published_at=conference)
 
         temp_dict = {
