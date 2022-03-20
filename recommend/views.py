@@ -4,7 +4,7 @@ from typing import Any, Iterable
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -55,6 +55,25 @@ class RemovePaperView(LoginRequiredMixin, View):
         paper.delete()
 
         return redirect("recommend:index")
+
+
+class AddFavoritePaperView(LoginRequiredMixin, View):
+    def post(self, request: HttpRequest, **kwargs) -> JsonResponse:
+        pk = int(request.POST.get("pk"))
+        paper = get_object_or_404(ReferencePaper, pk=pk)
+
+        UserPaper(
+            title=paper.title,
+            abstract=paper.abstract,
+            owner=request.user,
+            memo=paper.url,
+            added_at=timezone.now()
+        ).save()
+
+        return JsonResponse({
+            "state": "success",
+            "pk": pk
+        })
 
 
 class RecommendationView(LoginRequiredMixin, View):
@@ -124,6 +143,7 @@ class RecommendationView(LoginRequiredMixin, View):
             message = None
         else:
             ref_df = ref_df.iloc[np.random.permutation(len(ref_df))]
+            ref_df["distance"] = -1
             message = """
                 お気に入り論文が登録されていません。
                 登録するとおすすめ順にソートして表示されます。
