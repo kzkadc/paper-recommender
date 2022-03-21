@@ -7,14 +7,15 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import QuerySet
 
 import pandas as pd
 import numpy as np
 import fasttext
 
+from paper_recommender.local_settings import FASTTEXT_MODEL, STOPWORDS
 from .models import UserPaper, Conference, ReferencePaper
 from .forms import AddPaperForm
-from paper_recommender.local_settings import FASTTEXT_MODEL, STOPWORDS
 
 
 class MainMenuView(LoginRequiredMixin, View):
@@ -107,7 +108,8 @@ class RecommendationView(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest, **kwargs: dict[str, Any]) -> HttpRequest:
         conference = get_object_or_404(Conference, pk=kwargs["pk"])
-        ref_papers = ReferencePaper.objects.filter(published_at=conference)
+        ref_papers: QuerySet[ReferencePaper] = ReferencePaper.objects.filter(
+            published_at=conference)
 
         temp_dict = {
             "title": [],
@@ -115,7 +117,6 @@ class RecommendationView(LoginRequiredMixin, View):
             "pk": [],
             "url": []
         }
-        p: ReferencePaper
         for p in ref_papers:
             temp_dict["title"].append(p.title)
             temp_dict["abstract"].append(p.abstract)
@@ -123,12 +124,12 @@ class RecommendationView(LoginRequiredMixin, View):
             temp_dict["url"].append(p.url)
         ref_df = pd.DataFrame(temp_dict)
 
-        user_papers = UserPaper.objects.filter(owner=request.user)
+        user_papers: QuerySet[UserPaper] = UserPaper.objects.filter(
+            owner=request.user)
         temp_dict = {
             "title": [],
             "abstract": []
         }
-        p: UserPaper
         for p in user_papers:
             temp_dict["title"].append(p.title)
             temp_dict["abstract"].append(p.abstract)
@@ -176,8 +177,7 @@ class RecommendationView(LoginRequiredMixin, View):
         dist = dist.min(axis=1)
 
         ref_df["distance"] = dist
-        idx = np.argsort(dist)
-        ref_df = ref_df.iloc[idx]
+        ref_df.sort_values("distance", inplace=True)
 
         return ref_df
 
