@@ -66,7 +66,7 @@
                                 <h3 class="lead">Abstract</h3>
                                 <p>{{paper.abstract}}</p>
                                 <h3 class="lead">Memo</h3>
-                                <p class="small">{{paper.memo}}</p>
+                                <p class="small js-autolink">{{paper.memo}}</p>
                                 <p class="small"><a href="{% url 'recommend:remove' paper.pk %}">削除</a></p>
                             </div>
                         </div>
@@ -78,6 +78,8 @@
     </div>
 
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'jquery/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'auto_link.js' %}"></script>
 </body>
 
 </html>
