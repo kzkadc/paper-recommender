@@ -10,7 +10,8 @@ class ConferenceName(models.Model):
 
 
 class Conference(models.Model):
-    conference = models.ForeignKey(ConferenceName, on_delete=models.PROTECT)
+    conference = models.ForeignKey(
+        ConferenceName, on_delete=models.PROTECT, related_name="conf_year")
     year = models.IntegerField()
     url = models.URLField()
 

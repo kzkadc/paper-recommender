@@ -14,7 +14,7 @@ import numpy as np
 import fasttext
 
 from paper_recommender.local_settings import FASTTEXT_MODEL, STOPWORDS
-from .models import UserPaper, Conference, ReferencePaper
+from .models import UserPaper, ConferenceName, Conference, ReferencePaper
 from .forms import AddPaperForm
 
 
@@ -28,7 +28,7 @@ class MainMenuView(LoginRequiredMixin, View):
         else:
             form = AddPaperForm()
 
-        conferences = Conference.objects.all()
+        conferences = ConferenceName.objects.all().order_by("name")
 
         return render(request, "main_menu.html", {
             "user": request.user,
