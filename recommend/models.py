@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 
 class ConferenceName(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self) -> str:
         return self.name
@@ -17,6 +17,14 @@ class Conference(models.Model):
 
     def __str__(self) -> str:
         return f"{self.conference} {self.year}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["conference", "year"],
+                name="conference_unique"
+            )
+        ]
 
 
 class Paper(models.Model):
