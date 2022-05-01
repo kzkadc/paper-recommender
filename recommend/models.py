@@ -6,7 +6,7 @@ class ConferenceName(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self) -> str:
-        return self.name
+        return str(self.name)
 
 
 class Conference(models.Model):
@@ -32,7 +32,7 @@ class Paper(models.Model):
     abstract = models.TextField()
 
     def __str__(self) -> str:
-        return self.title
+        return str(self.title)
 
 
 class ReferencePaper(Paper):
