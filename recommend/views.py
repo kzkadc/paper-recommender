@@ -145,6 +145,7 @@ class RecommendationView(LoginRequiredMixin, View):
         else:
             ref_df = ref_df.iloc[np.random.permutation(len(ref_df))]
             ref_df["distance"] = -1
+
             message = """
                 お気に入り論文が登録されていません。
                 登録するとおすすめ順にソートして表示されます。
@@ -152,6 +153,8 @@ class RecommendationView(LoginRequiredMixin, View):
 
         if "display_num" in kwargs:
             ref_df = ref_df.iloc[:kwargs["display_num"]]
+
+        ref_df.reset_index(inplace=True)
 
         return render(request, "recommend_list.html", {
             "conference": conference,
